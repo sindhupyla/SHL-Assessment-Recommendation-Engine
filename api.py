@@ -55,31 +55,25 @@ def recommend(query: str = Query(..., description="Search for job role, skill, o
     ]
 
     if results.empty:
-        fallback = df.sample(10)[[
-            "assessment_name", "category", "job_roles", "skills", "level", "description"
-        ]]
-        return {
-            "results": fallback.to_dict(orient="records"),
-            "match_type": "partial",
-            "message": "No exact matches found. Showing fallback suggestions."
-        }
+        source = df.sample(10)
+        match_type = "partial"
+    else:
+        source = results.head(10)
+        match_type = "perfect"
 
-    output = results[[
-        "assessment_name", "category", "job_roles", "skills", "level", "description"
-    ]].head(10)
+    formatted = []
+    for _, row in source.iterrows():
+        formatted.append({
+            "assessment_name": row["assessment_name"],
+            "url": row.get("assessment_url", ""),
+            "adaptive_support": row.get("adaptive_irt_support", "Unknown"),
+            "remote_support": row.get("remote_testing_support", "Unknown"),
+            "description": row.get("description", ""),
+            "duration": int(str(row.get("duration", "0")).replace(" mins", "").strip()) if "mins" in str(row.get("duration", "")) else 0,
+            "test_type": [row.get("test_type", "")] if pd.notna(row.get("test_type")) else []
+        })
 
     return {
-        "results": output.to_dict(orient="records"),
-        "match_type": "perfect"
+        "recommended_assessments": formatted,
+        "match_type": match_type
     }
-
-@app.get("/detailed_recommend")
-def detailed_recommend(query: str = Query(..., description="Search with detailed response format")):
-    results = df[
-        df['job_roles'].str.contains(query, case=False, na=False) |
-        df['skills'].str.contains(query, case=False, na=False) |
-        df['assessment_name'].str.contains(query, case=False, na=False)
-    ]
-
-    if results.empty:
-        source = df.sample(10)
