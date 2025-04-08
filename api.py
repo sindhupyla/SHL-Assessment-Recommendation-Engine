@@ -1,38 +1,37 @@
 from fastapi import FastAPI, Query
 import pandas as pd
+from engine import load_catalog  # Make sure engine.py properly loads your CSV
 
-# Create app instance
-app = FastAPI()
+app = FastAPI(title="SHL Assessment Recommendation API")
 
-# Load your dataset
-df = pd.read_csv("shl_catalog.csv")
+# Load the dataset once when the app starts
+df = load_catalog()
 
 @app.get("/")
 def home():
-    return {"message": "Welcome to the SHL Assessment API. Use /recommend?query= to search."}
+    return {
+        "message": "Welcome to the SHL Assessment Recommendation API. Use /recommend?query=your_keyword to get suggestions."
+    }
 
 @app.get("/recommend")
-def recommend(query: str = Query(..., description="Search for skill, job role, or keyword")):
-    try:
-        results = df[
-            df['assessment_name'].str.contains(query, case=False, na=False) |
-            df['skills'].str.contains(query, case=False, na=False) |
-            df['job_roles'].str.contains(query, case=False, na=False)
-        ]
+def recommend(query: str = Query(..., description="Job role, skill, or keyword")):
+    # Filter dataset using query
+    results = df[
+        df['job_roles'].str.contains(query, case=False, na=False) |
+        df['skills'].str.contains(query, case=False, na=False) |
+        df['assessment_name'].str.contains(query, case=False, na=False)
+    ]
 
-        if results.empty:
-            return {"message": "No matching assessments found. Try another keyword."}
+    # If no results found
+    if results.empty:
+        return {"message": "No assessments found for your query."}
 
-        output = results[[
-            "assessment_name",
-            "url",
-            "remote_testing_support",
-            "adaptive_irt_support",
-            "duration",
-            "test_type"
-        ]].head(10)
-
-        return output.to_dict(orient="records")
-
-    except Exception as e:
-        return {"error": str(e)}
+    # Return only available fields
+    return results[[
+        'assessment_name',
+        'category',
+        'job_roles',
+        'skills',
+        'level',
+        'description'
+    ]].to_dict(orient="records")
