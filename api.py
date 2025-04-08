@@ -1,3 +1,16 @@
+from fastapi import FastAPI, Query
+import pandas as pd
+
+# Create app instance
+app = FastAPI()
+
+# Load your dataset
+df = pd.read_csv("shl_catalog.csv")
+
+@app.get("/")
+def home():
+    return {"message": "Welcome to the SHL Assessment API. Use /recommend?query= to search."}
+
 @app.get("/recommend")
 def recommend(query: str = Query(..., description="Search for skill, job role, or keyword")):
     try:
@@ -10,7 +23,6 @@ def recommend(query: str = Query(..., description="Search for skill, job role, o
         if results.empty:
             return {"message": "No matching assessments found. Try another keyword."}
 
-        # Only return exact columns that exist in CSV
         output = results[[
             "assessment_name",
             "url",
