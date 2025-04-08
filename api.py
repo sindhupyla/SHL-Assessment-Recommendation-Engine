@@ -10,7 +10,33 @@ df = load_catalog()
 @app.get("/")
 def home():
     return {
-        "message": "Welcome to the SHL Assessment Recommendation API. Use /recommend?query=your_keyword to get suggestions."
+        "message": "Welcome to the SHL Assessment Recommendation API. Use /recommend?query=your_keyword to get suggestions. \n\n"
+                   "✅ Sample Query Keywords for Evaluation (based on your dataset):\n\n"
+                   "Use: https://shl-assessment-recommendation-engine.onrender.com/recommend?query=<keyword>\n\n"
+                   "🔹 From skills:\n"
+                   "- communication\n"
+                   "- excel\n"
+                   "- python\n"
+                   "- numerical reasoning\n"
+                   "- problem solving\n\n"
+                   "🔹 From job_roles:\n"
+                   "- data analyst\n"
+                   "- software engineer\n"
+                   "- sales manager\n"
+                   "- project manager\n"
+                   "- consultant\n\n"
+                   "🔹 From assessment_name:\n"
+                   "- verbal reasoning\n"
+                   "- numerical test\n"
+                   "- cognitive ability\n"
+                   "- personality profiler\n"
+                   "- language proficiency\n\n"
+                   "📎 Example Test URLs:\n"
+                   "1. /recommend?query=communication\n"
+                   "2. /recommend?query=data%20analyst\n"
+                   "3. /recommend?query=numerical%20test\n"
+                   "4. /recommend?query=excel\n"
+                   "5. /recommend?query=consultant"
     }
 
 @app.get("/recommend")
