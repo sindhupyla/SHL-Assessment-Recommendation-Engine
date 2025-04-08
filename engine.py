@@ -1,6 +1,6 @@
 import pandas as pd
 
-def load_catalog(path="shl_catalog.csv"):
+def load_catalog(path="shl_full_catalog.csv"):
     return pd.read_csv(path)
 
 def recommend_assessments(df, job_roles=None, skills=None, levels=None, categories=None, search=None):
