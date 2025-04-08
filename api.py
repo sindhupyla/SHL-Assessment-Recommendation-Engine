@@ -55,7 +55,6 @@ def recommend(query: str = Query(..., description="Search for job role, skill, o
     ]
 
     if results.empty:
-        # fallback to random suggestions
         fallback = df.sample(10)[[
             "assessment_name", "category", "job_roles", "skills", "level", "description"
         ]]
@@ -83,22 +82,4 @@ def detailed_recommend(query: str = Query(..., description="Search with detailed
     ]
 
     if results.empty:
-        fallback = df.sample(10)[[
-            "assessment_name", "assessment_url", "remote_testing_support",
-            "adaptive_irt_support", "duration", "test_type"
-        ]]
-        return {
-            "results": fallback.to_dict(orient="records"),
-            "match_type": "partial",
-            "message": "No exact matches found. Showing fallback suggestions."
-        }
-
-    output = results[[
-        "assessment_name", "assessment_url", "remote_testing_support",
-        "adaptive_irt_support", "duration", "test_type"
-    ]].head(10)
-
-    return {
-        "results": output.to_dict(orient="records"),
-        "match_type": "perfect"
-    }
+        source = df.sample(10)
